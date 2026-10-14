@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  desktop-cracker — how it is organized once it is installed, and what one run does.
+  Icons and short labels carry the picture; README.md carries the explanation.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1280" height="900" viewBox="0 0 1280 900"
+     font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="13">
+  <title>desktop-cracker</title>
+  <desc>An installed desktop-cracker: the package on disk, the names on the PATH, the two programs
+    of a run and the guest they carry, and the lifecycle of one run from the launcher to the
+    machine ending itself.</desc>
+
+  <defs>
+    <!-- the icons, drawn once and placed many times -->
+    <symbol id="i-folder" viewBox="0 0 32 32">
+      <path fill="#e8b451" stroke="#8a6a1f" stroke-width="1.2" d="M3 7 L12 7 L15 10 L29 10 L29 26 L3 26 Z"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 32 32">
+      <path fill="#ffffff" stroke="#5a6b7a" stroke-width="1.2" d="M7 3 L19 3 L25 9 L25 29 L7 29 Z"/>
+      <path fill="none" stroke="#5a6b7a" stroke-width="1.2" d="M19 3v6h6"/>
+    </symbol>
+    <symbol id="i-run" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="13" fill="#2b7a4b" stroke="#1d5334" stroke-width="1.2"/>
+      <path fill="#ffffff" d="M12 9 L25 16 L12 23 Z"/>
+    </symbol>
+    <symbol id="i-monitor" viewBox="0 0 32 32">
+      <rect x="2" y="4" width="28" height="19" rx="2" fill="#22323f" stroke="#16202b" stroke-width="1.2"/>
+      <rect x="5" y="7" width="22" height="13" fill="#7fc4ff"/>
+      <path stroke="#22323f" stroke-width="2" fill="none" d="M16 23 L16 28 M9 29 L23 29"/>
+    </symbol>
+    <symbol id="i-key" viewBox="0 0 32 32">
+      <circle cx="10" cy="14" r="6" fill="none" stroke="#a8761d" stroke-width="3"/>
+      <path stroke="#a8761d" stroke-width="3" fill="none" d="M15 17 L27 26 M23 23 L26 20"/>
+    </symbol>
+    <symbol id="i-plug" viewBox="0 0 32 32">
+      <path fill="#456" d="M12 3 L15 3 L15 9 L12 9 Z M17 3 L20 3 L20 9 L17 9 Z"/>
+      <rect x="9" y="9" width="14" height="8" rx="2" fill="#456"/>
+      <path stroke="#456" stroke-width="3" fill="none" d="M16 17 L16 29"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 32 32">
+      <path fill="#e2543a" stroke="#a12d1a" stroke-width="1.2"
+            d="M16 2 L20 12 L30 16 L20 20 L16 30 L12 20 L2 16 L12 12 Z"/>
+    </symbol>
+    <symbol id="i-chip" viewBox="0 0 32 32">
+      <rect x="7" y="7" width="18" height="18" rx="2" fill="#f7f9fb" stroke="#456" stroke-width="1.6"/>
+      <rect x="13" y="13" width="6" height="6" fill="#456"/>
+      <path stroke="#456" stroke-width="1.6" fill="none"
+            d="M11 3 L11 7 M16 3 L16 7 M21 3 L21 7 M11 25 L11 29 M16 25 L16 29 M21 25 L21 29 M3 11 L7 11 M3 16 L7 16 M3 21 L7 21 M25 11 L29 11 M25 16 L29 16 M25 21 L29 21"/>
+    </symbol>
+    <symbol id="i-disk" viewBox="0 0 32 32">
+      <ellipse cx="16" cy="9" rx="11" ry="4.5" fill="#cfe0ef" stroke="#2b4a72" stroke-width="1.4"/>
+      <path fill="#cfe0ef" stroke="#2b4a72" stroke-width="1.4"
+            d="M5 9 L5 23 C5 25.5 10 27.5 16 27.5 C22 27.5 27 25.5 27 23 L27 9"/>
+      <path stroke="#2b4a72" stroke-width="1.2" fill="none"
+            d="M5 16c0 2.5 5 4.5 11 4.5s11-2 11-4.5"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 32 32">
+      <path fill="#f0c674" stroke="#8a6a1f" stroke-width="1.4" d="M9 14 L23 14 L23 28 L9 28 Z"/>
+      <path fill="none" stroke="#8a6a1f" stroke-width="2.4" d="M12 14 L12 9 A4 4 0 0 1 20 9 L20 14"/>
+      <circle cx="16" cy="20" r="2" fill="#8a6a1f"/>
+    </symbol>
+    <symbol id="i-share" viewBox="0 0 32 32">
+      <path fill="#e8b451" stroke="#8a6a1f" stroke-width="1.2" d="M3 7 L12 7 L15 10 L29 10 L29 26 L3 26 Z"/>
+      <path stroke="#2b4a72" stroke-width="2.4" fill="none" d="M11 20 L21 20 M17 16 L21 20 L17 24"/>
+    </symbol>
+    <symbol id="i-net" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="12" fill="none" stroke="#456" stroke-width="1.8"/>
+      <path stroke="#456" stroke-width="1.4" fill="none"
+            d="M4 16 L28 16 M16 4 C20 8 20 24 16 28 M16 4 C12 8 12 24 16 28 M7 9 L25 9 M7 23 L25 23"/>
+    </symbol>
+    <symbol id="i-sound" viewBox="0 0 32 32">
+      <path fill="#456" d="M5 12h5l7-6v20l-7-6H5z"/>
+      <path stroke="#456" stroke-width="2" fill="none" d="M21 11 A7 7 0 0 1 21 21 M25 7 A12 12 0 0 1 25 25"/>
+    </symbol>
+    <symbol id="i-x11" viewBox="0 0 32 32">
+      <rect x="3" y="5" width="26" height="22" rx="2" fill="#ffffff" stroke="#456" stroke-width="1.8"/>
+      <path stroke="#456" stroke-width="2.4" fill="none" d="M10 11 L22 21 M22 11 L10 21"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="12" fill="#ffffff" stroke="#456" stroke-width="2"/>
+      <path stroke="#456" stroke-width="2.2" fill="none" d="M16 8 L16 16 L22 20"/>
+    </symbol>
+    <symbol id="i-stop" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="12" fill="none" stroke="#a12d1a" stroke-width="2.4"/>
+      <path stroke="#a12d1a" stroke-width="3" fill="none" d="M11 11 L21 21"/>
+    </symbol>
+    <symbol id="i-keyboard" viewBox="0 0 32 32">
+      <rect x="2" y="9" width="28" height="15" rx="2" fill="#f7f9fb" stroke="#456" stroke-width="1.6"/>
+      <path stroke="#456" stroke-width="1.6"
+            d="M6 13 L9 13 M11 13 L14 13 M16 13 L19 13 M21 13 L24 13 M6 17 L9 17 M11 17 L14 17 M16 17 L19 17 M21 17 L24 17 M9 21 L23 21"/>
+    </symbol>
+    <symbol id="i-shell" viewBox="0 0 32 32">
+      <rect x="2" y="4" width="28" height="24" rx="2" fill="#16202b"/>
+      <path stroke="#7fe0a0" stroke-width="2" fill="none" d="M7 12 L11 16 L7 20 M14 21 L24 21"/>
+    </symbol>
+    <symbol id="i-cloud" viewBox="0 0 32 32">
+      <path fill="#dfe9f2" stroke="#456" stroke-width="1.6"
+            d="M9 22 A5 5 0 0 1 9 12 A6.5 6.5 0 0 1 21.4 10.4 A5.5 5.5 0 0 1 24 22 Z"/>
+    </symbol>
+    <symbol id="i-server" viewBox="0 0 32 32">
+      <rect x="5" y="4" width="22" height="9" rx="2" fill="#eef2f6" stroke="#456" stroke-width="1.6"/>
+      <rect x="5" y="19" width="22" height="9" rx="2" fill="#eef2f6" stroke="#456" stroke-width="1.6"/>
+      <circle cx="10" cy="8.5" r="1.6" fill="#2b7a4b"/>
+      <circle cx="10" cy="23.5" r="1.6" fill="#2b7a4b"/>
+    </symbol>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#456"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#a12d1a"/>
+    </marker>
+
+    <style>
+      .panel  { fill: #ffffff; stroke: #b9c6d2; stroke-width: 1.4; rx: 10; }
+      .box    { fill: #f7f9fb; stroke: #6b7c8c; stroke-width: 1.2; rx: 6; }
+      .appbox { fill: #eef4fb; stroke: #2b4a72; stroke-width: 1.8; rx: 8; }
+      .fcbox  { fill: #fdf3ef; stroke: #a12d1a; stroke-width: 1.8; rx: 8; }
+      .gstbox { fill: #f3f6ef; stroke: #3f6136; stroke-width: 1.8; rx: 8; }
+      .hostbox{ fill: #f6f2fa; stroke: #6b4a8c; stroke-width: 1.4; rx: 6; }
+      .step   { fill: #ffffff; stroke: #c6d2dd; stroke-width: 1; rx: 6; }
+      .num    { fill: #2b4a72; }
+      .numtxt { fill: #ffffff; font-size: 12px; font-weight: bold; }
+      .t      { fill: #16202b; font-size: 13px; }
+      .b      { fill: #16202b; font-size: 13px; font-weight: bold; }
+      .s      { fill: #33424f; font-size: 11.5px; }
+      .m      { fill: #55636f; font-size: 10.5px; }
+      .h      { fill: #22323f; font-size: 14px; font-weight: bold; }
+      .ttl    { fill: #16202b; font-size: 22px; font-weight: bold; }
+      .sub    { fill: #33424f; font-size: 13px; }
+      .flow   { stroke: #456; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .flow2  { stroke: #456; stroke-width: 1.6; fill: none;
+                marker-start: url(#arrow); marker-end: url(#arrow); }
+      .die    { stroke: #a12d1a; stroke-width: 1.4; fill: none; stroke-dasharray: 5 4;
+                marker-end: url(#arrow-red); }
+      .dash   { stroke: #8a97a3; stroke-width: 1; fill: none; stroke-dasharray: 4 4; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="900" fill="#ffffff"/>
+
+  <text class="ttl" x="28" y="38">desktop-cracker</text>
+  <text class="sub" x="28" y="60">a microVM desktop, installed and running — README.md has the detail</text>
+
+  <!-- ==================================================== where it is installed -->
+  <rect class="panel" x="20" y="84" width="360" height="352"/>
+  <use xlink:href="#i-folder" x="34" y="96" width="22" height="22"/>
+  <text class="h" x="64" y="113">Where it is installed</text>
+
+  <text class="s" x="34" y="140">~/desktop-cracker/</text>
+  <text class="m" x="34" y="157">or any folder it was extracted into — it runs from there</text>
+
+  <use xlink:href="#i-run" x="42" y="166" width="16" height="16"/>
+  <text class="t" x="66" y="179">bin/</text>
+  <text class="m" x="100" y="179">desktop-cracker · desk-disk · firecracker</text>
+
+  <use xlink:href="#i-chip" x="42" y="188" width="16" height="16"/>
+  <text class="t" x="66" y="201">libraries/</text>
+  <text class="m" x="134" y="201">the shared libraries that travel with it</text>
+
+  <use xlink:href="#i-server" x="42" y="210" width="16" height="16"/>
+  <text class="t" x="66" y="223">kernel/</text>
+  <text class="m" x="114" y="223">kernel · initramfs.gz</text>
+
+  <use xlink:href="#i-disk" x="42" y="232" width="16" height="16"/>
+  <text class="t" x="66" y="245">images/</text>
+  <text class="m" x="120" y="245">rootfs.ext4 — the userland a new disk is made from</text>
+
+  <use xlink:href="#i-lock" x="42" y="254" width="16" height="16"/>
+  <text class="t" x="66" y="267">disks/</text>
+  <text class="m" x="112" y="267">root.raw — the encrypted root disk</text>
+
+  <use xlink:href="#i-file" x="42" y="276" width="16" height="16"/>
+  <text class="t" x="66" y="289">config.yml</text>
+  <text class="m" x="140" y="289">the settings — the settings window edits this file</text>
+
+  <use xlink:href="#i-folder" x="42" y="298" width="16" height="16"/>
+  <text class="t" x="66" y="311">icons/ · docs/ · VERSION</text>
+
+  <use xlink:href="#i-shell" x="42" y="320" width="16" height="16"/>
+  <text class="t" x="66" y="333">install.sh · uninstall.sh · launcher.sh</text>
+
+  <rect class="box" x="34" y="348" width="332" height="76"/>
+  <text class="b" x="46" y="368">what is linked into the PATH</text>
+  <use xlink:href="#i-run" x="46" y="376" width="18" height="18"/>
+  <text class="t" x="70" y="389">desk-run</text>
+  <text class="m" x="128" y="389">→ launcher.sh → bin/desktop-cracker</text>
+  <use xlink:href="#i-disk" x="46" y="398" width="18" height="18"/>
+  <text class="t" x="70" y="411">desk-disk</text>
+  <text class="m" x="132" y="411">→ the disk tool: make, resize, re-key, inspect</text>
+
+  <!-- ==================================================== one run's life -->
+  <rect class="panel" x="20" y="452" width="360" height="428"/>
+  <use xlink:href="#i-clock" x="34" y="464" width="22" height="22"/>
+  <text class="h" x="64" y="481">One run's life</text>
+
+  <rect class="step" x="34" y="496" width="332" height="42"/>
+  <circle class="num" cx="54" cy="517" r="11"/><text class="numtxt" x="50" y="521">1</text>
+  <use xlink:href="#i-run" x="72" y="506" width="20" height="20"/>
+  <text class="t" x="100" y="513">the user starts it</text>
+  <text class="m" x="100" y="529">desk-run, or the desktop entry</text>
+
+  <path class="flow" d="M200 538 L200 548"/>
+
+  <rect class="step" x="34" y="548" width="332" height="42"/>
+  <circle class="num" cx="54" cy="569" r="11"/><text class="numtxt" x="50" y="573">2</text>
+  <use xlink:href="#i-folder" x="72" y="558" width="20" height="20"/>
+  <text class="t" x="100" y="565">it reads its own folder</text>
+  <text class="m" x="100" y="581">config.yml · disks/root.raw · kernel/ · images/</text>
+
+  <path class="flow" d="M200 590 L200 600"/>
+
+  <rect class="step" x="34" y="600" width="332" height="42"/>
+  <circle class="num" cx="54" cy="621" r="11"/><text class="numtxt" x="50" y="625">3</text>
+  <use xlink:href="#i-key" x="72" y="610" width="20" height="20"/>
+  <text class="t" x="100" y="617">it asks for the passphrase</text>
+  <text class="m" x="100" y="633">typed by the user, kept in memory, never written</text>
+
+  <path class="flow" d="M200 642 L200 652"/>
+
+  <rect class="step" x="34" y="652" width="332" height="42"/>
+  <circle class="num" cx="54" cy="673" r="11"/><text class="numtxt" x="50" y="677">4</text>
+  <use xlink:href="#i-plug" x="72" y="662" width="20" height="20"/>
+  <text class="t" x="100" y="669">it opens its own run directory</text>
+  <text class="m" x="100" y="685">every channel's socket, before the machine starts</text>
+
+  <path class="flow" d="M200 694 L200 704"/>
+
+  <rect class="step" x="34" y="704" width="332" height="42"/>
+  <circle class="num" cx="54" cy="725" r="11"/><text class="numtxt" x="50" y="729">5</text>
+  <use xlink:href="#i-spark" x="72" y="714" width="20" height="20"/>
+  <text class="t" x="100" y="721">it starts firecracker</text>
+  <text class="m" x="100" y="737">a child process it defines the machine to, over its API</text>
+
+  <path class="flow" d="M200 746 L200 756"/>
+
+  <rect class="step" x="34" y="756" width="332" height="42"/>
+  <circle class="num" cx="54" cy="777" r="11"/><text class="numtxt" x="50" y="781">6</text>
+  <use xlink:href="#i-monitor" x="72" y="766" width="20" height="20"/>
+  <text class="t" x="100" y="773">the desktop appears</text>
+  <text class="m" x="100" y="789">the guest boots; the window shows its screen</text>
+
+  <path class="flow" d="M200 798 L200 808"/>
+
+  <rect class="step" x="34" y="808" width="332" height="42"/>
+  <circle class="num" cx="54" cy="829" r="11"/><text class="numtxt" x="50" y="833">7</text>
+  <use xlink:href="#i-stop" x="72" y="818" width="20" height="20"/>
+  <text class="t" x="100" y="825">it ends, and takes it all with it</text>
+  <text class="m" x="100" y="841">the guest reboots; the run directory goes away</text>
+
+  <!-- ==================================================== what a run is made of -->
+  <rect class="panel" x="400" y="84" width="860" height="796"/>
+  <use xlink:href="#i-chip" x="416" y="96" width="22" height="22"/>
+  <text class="h" x="446" y="113">What a run is made of</text>
+
+  <rect class="appbox" x="428" y="132" width="384" height="300"/>
+  <use xlink:href="#i-run" x="442" y="144" width="24" height="24"/>
+  <text class="b" x="474" y="162">desktop-cracker</text>
+  <text class="m" x="474" y="177">one process — the whole host side of a run</text>
+
+  <rect class="box" x="442" y="190" width="356" height="70"/>
+  <use xlink:href="#i-monitor" x="452" y="200" width="20" height="20"/>
+  <text class="t" x="480" y="213">the window</text>
+  <text class="m" x="480" y="229">the guest's screen, at the guest's resolution or full screen;</text>
+  <text class="m" x="480" y="244">the global keys; the settings window and every dialog</text>
+
+  <rect class="box" x="442" y="268" width="356" height="88"/>
+  <use xlink:href="#i-plug" x="452" y="278" width="20" height="20"/>
+  <text class="t" x="480" y="291">one service per guest device</text>
+  <text class="m" x="480" y="308">display · audio · shared folders · network</text>
+  <text class="m" x="480" y="323">remote X · control · shutdown · readiness</text>
+  <text class="m" x="480" y="340">each on a thread of its own, each on its own port</text>
+
+  <rect class="box" x="442" y="364" width="356" height="56"/>
+  <use xlink:href="#i-chip" x="452" y="374" width="20" height="20"/>
+  <text class="t" x="480" y="387">the plugin seam (--plugin-path)</text>
+  <text class="m" x="480" y="404">what a test watches: milestones, state, screen, questions</text>
+
+  <rect class="box" x="428" y="444" width="384" height="86"/>
+  <use xlink:href="#i-shell" x="442" y="454" width="22" height="22"/>
+  <text class="b" x="474" y="470">desk-run</text>
+  <text class="m" x="540" y="470">the launcher on the PATH: starts the application beside it</text>
+  <use xlink:href="#i-disk" x="442" y="484" width="22" height="22"/>
+  <text class="b" x="474" y="500">desk-disk</text>
+  <text class="m" x="540" y="500">a disk job in a microVM of its own: create, rootdisk,</text>
+  <text class="m" x="540" y="515">resize, change-pass, info — no root, no loop device</text>
+
+  <rect class="box" x="428" y="542" width="384" height="118"/>
+  <use xlink:href="#i-folder" x="442" y="552" width="22" height="22"/>
+  <text class="b" x="474" y="568">the run's own directory</text>
+  <text class="m" x="474" y="586">$XDG_RUNTIME_DIR/desktop-cracker/run-&lt;pid&gt;/</text>
+  <text class="m" x="474" y="604">api.sock — firecracker's API</text>
+  <text class="m" x="474" y="620">v.sock · v.sock_53000 … — one socket per channel</text>
+  <text class="m" x="474" y="636">control/ — the run's files for the guest, and the guest's back</text>
+  <text class="m" x="474" y="652">private to this user, removed when the run ends</text>
+
+  <rect class="hostbox" x="428" y="672" width="384" height="120"/>
+  <text class="b" x="442" y="692">reaches, on this machine</text>
+  <use xlink:href="#i-keyboard" x="442" y="700" width="18" height="18"/>
+  <text class="m" x="468" y="714">the keyboard and the pointer, while the window is focused</text>
+  <use xlink:href="#i-sound" x="442" y="722" width="18" height="18"/>
+  <text class="m" x="468" y="736">the sound device, while the window is visible and numlock is held</text>
+  <use xlink:href="#i-cloud" x="442" y="744" width="18" height="18"/>
+  <text class="m" x="468" y="758">the internet, through this process's own network</text>
+  <use xlink:href="#i-x11" x="442" y="766" width="18" height="18"/>
+  <text class="m" x="468" y="780">the X server, for the guest's applications (remote X)</text>
+
+  <rect class="fcbox" x="844" y="132" width="396" height="150"/>
+  <use xlink:href="#i-spark" x="858" y="144" width="26" height="26"/>
+  <text class="b" x="894" y="164">firecracker</text>
+  <text class="m" x="894" y="180">a released binary, a child of the application —</text>
+  <text class="m" x="894" y="193">github.com/firecracker-microvm/firecracker</text>
+  <text class="m" x="894" y="199">the machine is defined over its API: boot source, drives,</text>
+  <text class="m" x="894" y="214">vsock, balloon, InstanceStart — an HTTP call each</text>
+  <text class="m" x="894" y="236">tied to its parent: if the application dies it dies with it</text>
+  <text class="m" x="894" y="251">(PR_SET_PDEATHSIG) — a machine is never an orphan</text>
+  <text class="m" x="894" y="270">it serves the guest's devices over one virtio-vsock</text>
+
+  <rect class="gstbox" x="844" y="310" width="396" height="334"/>
+  <use xlink:href="#i-monitor" x="858" y="322" width="26" height="26"/>
+  <text class="b" x="894" y="342">the guest — a microVM with KVM</text>
+  <text class="m" x="894" y="358">its own kernel and its own memory, gone with the run</text>
+
+  <rect class="box" x="858" y="372" width="368" height="72"/>
+  <use xlink:href="#i-chip" x="868" y="382" width="18" height="18"/>
+  <text class="t" x="894" y="396">desk-agent</text>
+  <text class="m" x="894" y="412">the guest's own half: the screen and its damage logic, the</text>
+  <text class="m" x="894" y="427">sound, the shares, the network, the run's files, the way out</text>
+
+  <rect class="box" x="858" y="452" width="368" height="88"/>
+  <use xlink:href="#i-lock" x="868" y="462" width="18" height="18"/>
+  <text class="t" x="894" y="476">the disks</text>
+  <text class="m" x="894" y="492">root.raw — a LUKS container, opened inside the guest with the</text>
+  <text class="m" x="894" y="507">passphrase the user typed: the host holds no key for it</text>
+  <text class="m" x="894" y="525">additional disks as /dev/vdb…, mounted by the guest's user</text>
+
+  <rect class="box" x="858" y="548" width="368" height="84"/>
+  <use xlink:href="#i-share" x="868" y="558" width="18" height="18"/>
+  <text class="t" x="894" y="572">the guest's desktop</text>
+  <text class="m" x="894" y="588">Debian 12: LightDM + Xfce, VLC, Firefox, Python 3.13</text>
+  <text class="m" x="894" y="603">the host's folders mounted, its own sshd and its own tun0</text>
+  <text class="m" x="894" y="621">it reaches its own session with no password</text>
+
+  <path class="flow2" d="M812 207 L844 207"/>
+  <text class="m" x="806" y="200">API</text>
+  <path class="flow2" d="M812 292 L844 292"/>
+  <text class="m" x="800" y="285">vsock</text>
+  <path class="flow" d="M812 470 L844 470"/>
+  <text class="m" x="806" y="463">kernel</text>
+
+  <rect class="box" x="844" y="658" width="396" height="134"/>
+  <use xlink:href="#i-stop" x="858" y="668" width="22" height="22"/>
+  <text class="b" x="890" y="684">how it ends</text>
+  <path class="die" d="M900 700 L960 700"/>
+  <text class="m" x="972" y="704">the window's Close: the guest reboots itself, firecracker exits</text>
+  <path class="die" d="M900 726 L960 726"/>
+  <text class="m" x="972" y="730">the application is killed: the child dies with it</text>
+  <path class="die" d="M900 752 L960 752"/>
+  <text class="m" x="972" y="756">F9 hides the window, and the password brings it back</text>
+  <text class="m" x="890" y="780">whichever way it ended: the run's directory is gone, and the guest with it</text>
+
+  <!-- ==================================================== footer -->
+  <path class="dash" d="M20 866 L1260 866"/>
+  <use xlink:href="#i-run" x="24" y="872" width="16" height="16"/>
+  <text class="m" x="46" y="885">a process</text>
+  <use xlink:href="#i-plug" x="126" y="872" width="16" height="16"/>
+  <text class="m" x="148" y="885">a channel</text>
+  <use xlink:href="#i-lock" x="230" y="872" width="16" height="16"/>
+  <text class="m" x="252" y="885">encrypted</text>
+  <use xlink:href="#i-disk" x="330" y="872" width="16" height="16"/>
+  <text class="m" x="352" y="885">a disk</text>
+  <use xlink:href="#i-cloud" x="410" y="872" width="16" height="16"/>
+  <text class="m" x="432" y="885">this machine</text>
+  <text class="m" x="540" y="885">make architecture prints this file's path · make help lists every command</text>
+</svg>

@@ -1,0 +1,40 @@
+[package]
+name = "fc-run"
+description = "A run of the Firecracker microvm: spawn, define, start, pin, answer the guest's channels, wait for its landmark, stop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-fc-api = { path = "../dc-fc-api" }
+dc-fc-vm = { path = "../dc-fc-vm" }
+dc-vsock = { path = "../dc-vsock" }
+dc-fc-net = { path = "../dc-fc-net" }
+dc-fc-control = { path = "../dc-fc-control" }
+dc-fc-share = { path = "../dc-fc-share" }
+dc-fc-display = { path = "../dc-fc-display" }
+dc-fc-audio = { path = "../dc-fc-audio" }
+dc-fc-remote = { path = "../dc-fc-remote" }
+dc-fc-power = { path = "../dc-fc-power" }
+dc-audio = { path = "../dc-audio" }
+dc-display = { path = "../dc-display" }
+dc-shares = { path = "../dc-shares" }
+dc-common = { path = "../dc-common" }
+dc-net = { path = "../dc-net" }
+dc-plugin = { path = "../dc-plugin" }
+anyhow.workspace = true
+thiserror.workspace = true
+libc.workspace = true
+serde_json.workspace = true
+zeroize = "1"
+
+[dev-dependencies]
+tempfile.workspace = true
+
+# The example runs the whole thing against a real Firecracker, so it needs the machine
+# crate by its own name too.
+[[example]]
+name = "run"
+path = "examples/run.rs"

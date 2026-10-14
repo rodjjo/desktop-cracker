@@ -1,0 +1,17 @@
+[package]
+name = "dc-fc-audio"
+description = "The guest's sound as a service: its snd-aloop PCM over vsock, through the project's own numlock-and-visible rule"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-audio = { path = "../dc-audio" }
+dc-vsock = { path = "../dc-vsock" }
+dc-common = { path = "../dc-common" }
+anyhow.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

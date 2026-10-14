@@ -1,0 +1,15 @@
+[package]
+name = "dc-fc-control"
+description = "The control share, as a vsock channel: the small files the guest reads (the mount plan, the disks, a job's secrets) and the status it writes back"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-vsock = { path = "../dc-vsock" }
+zeroize = "1"
+
+[dev-dependencies]
+tempfile.workspace = true

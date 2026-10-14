@@ -1,0 +1,25 @@
+[package]
+name = "dc-dialog"
+description = "The GTK3 dialogs the application puts in front of the user, with the terminal as the fallback"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+dc-plugin = { path = "../dc-plugin" }
+thiserror.workspace = true
+anyhow.workspace = true
+libc.workspace = true
+# The dialogs are GTK3 windows of our own, the same toolkit the display window and the
+# settings window use — and, like them, they are asked on the thread that runs the GTK main loop.
+gtk.workspace = true
+# **Where a dialog goes**, and the parent it belongs to: one rule for every window the
+# application puts up, so a question is centered and over the guest's screen wherever it is asked.
+# (`dc-ui` sits below the display on purpose: the display window obeys the same rule.)
+dc-ui = { path = "../dc-ui" }
+# **The UI thread's own work channel** (`schedule_once`): a message a caller asks for from a
+# thread that does not own GTK is handed to the thread that does, on its next tick.
+dc-display = { path = "../dc-display" }

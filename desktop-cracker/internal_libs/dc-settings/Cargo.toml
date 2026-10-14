@@ -1,0 +1,19 @@
+[package]
+name = "dc-settings"
+description = "The ~/.desktop-cracker/config.yml settings file (shared folders, root folder, unlock password)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_yaml.workspace = true
+sha2.workspace = true
+hmac = "0.12"
+pbkdf2 = "0.12"
+rand.workspace = true

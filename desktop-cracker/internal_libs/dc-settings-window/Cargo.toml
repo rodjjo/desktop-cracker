@@ -1,0 +1,32 @@
+[package]
+name = "dc-settings-window"
+description = "The settings window: the editable draft, and a GTK3 view over it"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-settings = { path = "../dc-settings" }
+dc-common = { path = "../dc-common" }
+# **Making the root disk the window offers to make.**  The disk is built *inside a microVM of its
+# own* (`dc-fc-disk`), which is the same path `desk-disk` drives: no root, no loop device and no
+# `dm-crypt` on the host, and the passphrase travels the control channel and never a command line.
+dc-fc-disk = { path = "../dc-fc-disk" }
+# The root disk's passphrase, while the window is open, is overwritten when it is dropped: it is never
+# written to a file and never on a command line.
+zeroize = { workspace = true }
+gtk = { version = "0.18", optional = true }
+# **Where the window goes**: the one placement rule every window and dialog the application puts
+# up is centered by.
+dc-ui = { path = "../dc-ui", optional = true }
+
+[features]
+# The GTK3 window.  `make build` turns it on; without it the window reports that this build
+# has none, which is not fatal — the settings file is the source of truth either way.
+gui = ["dep:gtk", "dep:dc-ui"]
+
+[dev-dependencies]
+tempfile.workspace = true
+serde_yaml.workspace = true

@@ -1,0 +1,22 @@
+[package]
+name = "dc-fc-disk"
+description = "A disk job on Firecracker: the project's own jobs, with the secrets travelling the control channel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+fc-run = { path = "../fc-run" }
+dc-common = { path = "../dc-common" }
+dc-fc-control = { path = "../dc-fc-control" }
+dc-fc-vm = { path = "../dc-fc-vm" }
+dc-vsock = { path = "../dc-vsock" }
+dc-disk-manager = { path = "../dc-disk-manager" }
+dc-disk = { path = "../dc-disk" }
+anyhow.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

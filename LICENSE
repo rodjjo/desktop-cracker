@@ -1,0 +1,36 @@
+MIT License
+
+Copyright (c) 2026 desktop-cracker contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Third-party software this project uses, and the licences it comes under:
+
+* **Firecracker** — <https://github.com/firecracker-microvm/firecracker> — Apache-2.0, by Amazon
+  Web Services and its contributors.  It is the hypervisor every run uses, and it is used as a
+  **released binary**: this project does not modify it, and `make download` fetches a release of it.
+  Its source, its licence and its notice are in the repository above.
+* The **guest's userland** (`make rootfs`) is assembled from Debian's own packages, each under its
+  own licence; the full text of each is inside the image, under `/usr/share/doc/*/copyright`.  The
+  Firefox ESR, VLC and Python builds are packaged the same way.
+* The **guest's framebuffer module** (`desktop-cracker/guest-kernel/`) is built against the Linux
+  kernel's interfaces and carries its own `SPDX-License-Identifier: GPL-2.0`, which is what a Linux
+  kernel module declares; it is the one part of this tree that is not MIT.

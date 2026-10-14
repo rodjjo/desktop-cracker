@@ -1,0 +1,35 @@
+[package]
+name = "dc-display"
+description = "The microVM's window: a GTK3 window with an OpenGL area, the pixels, the keyboard and the pointer, the display rule"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+dc-plugin = { path = "../dc-plugin" }
+# The display's own channel's error type: the sink the window forwards to is the same one the
+# display service speaks on, so the two crates share one error rather than inventing a second.
+dc-vsock = { path = "../dc-vsock" }
+# The one placement rule and the parent a dialog belongs to (`dc-ui`): the display window is
+# centered by the same code the settings window and the dialogs use, and the window this crate
+# publishes is what a question is asked over.
+dc-ui = { path = "../dc-ui" }
+x11rb.workspace = true
+# **The window is a GTK3 window** whose content is a `gtk::GLArea`, and the GL calls go through
+# `glow`, loaded from the context GTK made (libepoxy is what GTK draws through).  One toolkit for
+# everything the application puts on screen — the window, the dialogs and the settings window —
+# which is what lets them all live on **one thread with one main loop**.
+gtk.workspace = true
+gdk.workspace = true
+glow.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+libc.workspace = true
+serde = { workspace = true }
+
+[dev-dependencies]
+tempfile.workspace = true
+

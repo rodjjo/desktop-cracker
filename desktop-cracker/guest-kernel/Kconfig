@@ -1,0 +1,19 @@
+# The option of this project's own framebuffer (`desktop-cracker/guest-kernel/`).
+# It lives here because the module does: `build-kernel.sh` copies this directory into the kernel
+# tree and sources this file beside it, so the kernel's own configuration is where the choice is
+# made and `make olddefconfig` can resolve it like any other option.
+config DESK_FB
+	tristate "desktop-cracker's framebuffer (the guest's screen, backed by guest memory)"
+	depends on FB
+	select FB_SYS_FILLRECT
+	select FB_SYS_COPYAREA
+	select FB_SYS_IMAGEBLIT
+	select FB_SYS_FOPS
+	help
+	  The framebuffer desktop-cracker's guest draws into when it runs under Firecracker:
+	  a real `/dev/fb0` of system memory, with the kernel's own `sys_*` blitters, plus a
+	  control node (`/dev/desk_fb-fb`) the guest's agent maps to read the pixels and to be
+	  told what the kernel itself drew.
+
+	  Firecracker exposes no display device, so this is where the guest's screen comes from.
+	  Say M (or Y) to have a screen at all.

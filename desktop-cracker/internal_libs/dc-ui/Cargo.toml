@@ -1,0 +1,18 @@
+[package]
+name = "dc-ui"
+description = "The one UI thread's vocabulary: the parent a dialog belongs to, and the rule that every window is centered before it is shown"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+# The one toolkit the application puts anything on screen with.
+gtk.workspace = true
+gdk.workspace = true
+
+[dev-dependencies]
+# The close question's three answers are `dc-dialog`'s, and the test above pins the mapping
+# between its buttons and this application's behaviour.
+dc-dialog = { path = "../dc-dialog" }

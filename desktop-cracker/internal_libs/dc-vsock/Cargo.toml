@@ -1,0 +1,16 @@
+[package]
+name = "dc-vsock"
+description = "The host's end of every vsock service: one listener per port, and the framing they share"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+libc.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

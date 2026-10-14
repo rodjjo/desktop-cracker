@@ -1,0 +1,5 @@
+[build]
+# **The build output is the tree's own `target/`**, at the root of this tree and not inside this
+# workspace (`desktop-cracker/`): one folder for the whole project, whichever crate a build is of.
+# `make build` exports the same directory, so `make` and a plain `cargo build` from here agree.
+target-dir = "../target"

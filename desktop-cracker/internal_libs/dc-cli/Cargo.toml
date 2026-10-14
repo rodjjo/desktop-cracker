@@ -1,0 +1,15 @@
+[package]
+name = "dc-cli"
+description = "The desktop-cracker command line: the run switches and the management ones"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+dc-settings = { path = "../dc-settings" }
+anyhow.workspace = true
+thiserror.workspace = true
+libc.workspace = true

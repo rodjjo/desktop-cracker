@@ -1,0 +1,36 @@
+# **Everything the project fetches, builds or is given lives under `temp/`**: the not-versioned
+# scratch folder, the media a run boots (`temp/download/`), the disks and the run's own files.
+# Nothing of it is committed.
+temp/
+
+# Build artifacts
+target/
+**/target/
+
+# Built guest artefacts (the initramfs, the agent, the guest tools, root disks) — reproduce them
+# with `make build`, `make agent` and `make download`.
+**/out/
+**/*.gz
+**/*.xz
+**/*.img
+**/*.qcow2
+**/*.o
+**/*.rlib
+
+# Per-user state and logs
+run/
+*.log
+
+# Python bytecode (the tools and the system test are scripts, never compiled here)
+__pycache__/
+*.py[cod]
+
+# The package `make dist` builds: the hypervisor, the guest image and the userland, so it is an
+# artefact to build, never to version.
+dist/
+
+# Editors and desktops that leave a file behind
+*.swp
+*.swo
+*~
+.DS_Store

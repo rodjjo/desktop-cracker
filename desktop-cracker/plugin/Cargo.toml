@@ -1,0 +1,24 @@
+[package]
+name = "desk-plugin"
+description = "The test plugin: a run's milestones, state, screen and questions, over HTTP and one WebSocket"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[lib]
+name = "desk_plugin"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# The ABI and the host seam are the application's crate: the two sides read one file, which is
+# what makes them agree.
+dc-plugin = { path = "../internal_libs/dc-plugin" }
+serde_json.workspace = true
+png.workspace = true
+tungstenite.workspace = true
+base64.workspace = true
+sha1.workspace = true
+zeroize.workspace = true
+libc.workspace = true

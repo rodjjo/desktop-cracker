@@ -1,0 +1,22 @@
+[package]
+name = "dc-session"
+description = "What the application asks, and what its keys mean: the disk's passphrase, the chords, the settings window and the one UI thread's tick — shared by both backends"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+dc-settings = { path = "../dc-settings" }
+dc-dialog = { path = "../dc-dialog" }
+dc-display = { path = "../dc-display" }
+dc-settings-window = { path = "../dc-settings-window" }
+anyhow.workspace = true
+zeroize = "1"
+
+[dev-dependencies]
+# The tests need a scratch directory of their own (AGENTS.md: never `/tmp`, never the user's
+# settings): `tempfile` is what the rest of this workspace uses for one.
+tempfile.workspace = true

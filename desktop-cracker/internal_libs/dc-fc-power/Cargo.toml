@@ -1,0 +1,15 @@
+[package]
+name = "dc-fc-power"
+description = "The guest's own shutdown: one channel, one request, and the reboot that ends Firecracker"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-vsock = { path = "../dc-vsock" }
+dc-common = { path = "../dc-common" }
+
+[dev-dependencies]
+tempfile.workspace = true

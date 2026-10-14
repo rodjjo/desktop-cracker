@@ -1,0 +1,17 @@
+[package]
+name = "dc-fc-share"
+description = "The host folders as a vsock service: the filesystem the guest's FUSE agent mounts, with the tags, the RW/RO rule and the control share"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+dc-shares = { path = "../dc-shares" }
+dc-vsock = { path = "../dc-vsock" }
+libc.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

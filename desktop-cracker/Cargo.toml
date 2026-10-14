@@ -1,0 +1,88 @@
+[workspace]
+resolver = "2"
+# **The guest's own crate is a workspace of its own** (`guest-agent-rs`): built for the guest, as a
+# static musl binary, while everything here is built for the host.  It is named here so cargo cannot
+# fold it into this workspace and its own manifest would keep meaning what it says.
+exclude = ["guest-agent-rs"]
+members = [
+    # The machine: Firecracker's API, the channels the guest's devices are, and the run.
+    "internal_libs/dc-fc-api",
+    "internal_libs/dc-vsock",
+    "internal_libs/dc-fc-vm",
+    "internal_libs/fc-run",
+    "internal_libs/dc-fc-net",
+    "internal_libs/dc-fc-control",
+    "internal_libs/dc-fc-display",
+    "internal_libs/dc-fc-audio",
+    "internal_libs/dc-fc-remote",
+    "internal_libs/dc-fc-power",
+    "internal_libs/dc-fc-window",
+    "internal_libs/dc-fc-share",
+    "internal_libs/dc-fc-disk",
+    # The application's own half: the switches, the settings, the shares' plan, the window, the
+    # dialogs, the questions, the sound rule, the plugins, remote X and the disk tools.
+    "internal_libs/dc-common",
+    "internal_libs/dc-settings",
+    "internal_libs/dc-cli",
+    "internal_libs/dc-shares",
+    "internal_libs/dc-disk",
+    "internal_libs/dc-disk-manager",
+    "internal_libs/dc-display",
+    "internal_libs/dc-ui",
+    "internal_libs/dc-audio",
+    "internal_libs/dc-dialog",
+    "internal_libs/dc-net",
+    "internal_libs/dc-settings-window",
+    "internal_libs/dc-xremote",
+    "internal_libs/dc-plugin",
+    "internal_libs/dc-session",
+    # The binaries and the test plugin.
+    "app/disk",
+    "app/desktop",
+    "plugin",
+]
+
+# **desktop-cracker**, one workspace: the application, the libraries it is made of, the guest's
+# agent and kernel (in C, beside this file), and the tools.
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT"
+authors = ["Rodrigo Antonio <rodjjo@gmail.com>"]
+
+[workspace.dependencies]
+# The window: **a GTK3 window with a `gtk::GLArea`**, and raw OpenGL on it through `glow`.
+# GTK is the one toolkit the application uses — the display window, the dialogs and the settings
+# window are all its windows, on one thread with one main loop, which is what makes a modal
+# dialog safe to ask and safe to destroy.
+gtk = "0.18"
+gdk = "0.18"
+glow = "0.16.0"
+# The host's X server, asked directly: the physical state of the numlock **key**
+# (`QueryKeymap`), which is what the display rule is about.
+x11rb = "0.13.2"
+anyhow = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+clap = { version = "4", features = ["derive"] }
+libc = "0.2"
+sha2 = "0.10"
+rand = "0.8"
+tempfile = "3"
+# **The plugin's own dependencies**: it is the only crate here that serves HTTP and a WebSocket,
+# and none of these reach the application.  `png` is what turns a pulled frame into the
+# `image/png` the run's own rules `/frame` answers.
+png = "0.18"
+tungstenite = "0.29"
+base64 = "0.22"
+sha1 = "0.10"
+serde_json = "1"
+zeroize = { version = "1", features = ["alloc"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+debug = false

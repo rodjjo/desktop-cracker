@@ -1,0 +1,20 @@
+[package]
+name = "dc-disk-manager"
+description = "The disk-management microVM: create, resize, rekey and inspect a guest disk with no root on the host"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+# The job's own error type: this crate owns **what a job is** (the plan, the secrets, the seed
+# image), and a driver — `dc-fc-disk`, which `desk-disk` calls — is what runs it in a microVM.
+dc-disk = { path = "../dc-disk" }
+anyhow.workspace = true
+thiserror.workspace = true
+libc.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

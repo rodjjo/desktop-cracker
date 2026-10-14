@@ -1,0 +1,36 @@
+[package]
+name = "desk-disk"
+description = "Manage a guest disk: create, change-pass, resize, info, validate — each in a Firecracker microvm of its own"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "desk-disk"
+path = "src/main.rs"
+
+[dependencies]
+dc-fc-disk = { path = "../../internal_libs/dc-fc-disk" }
+dc-common = { path = "../../internal_libs/dc-common" }
+dc-disk = { path = "../../internal_libs/dc-disk" }
+dc-disk-manager = { path = "../../internal_libs/dc-disk-manager" }
+# **The settings, for one thing only**: the window's default disk path is the folder the settings
+# name (`disk_folder`), which is what the application looks in — so a disk made here is where the
+# application expects it.
+dc-settings = { path = "../../internal_libs/dc-settings" }
+# **Where the window goes**: the one placement rule every window of this project is centered by.
+dc-ui = { path = "../../internal_libs/dc-ui", optional = true }
+gtk = { version = "0.18", optional = true }
+anyhow.workspace = true
+libc.workspace = true
+
+[features]
+# The GTK window `desk-disk` opens with no arguments.  `make build` turns it on; a build without
+# it still has every command (it says the window is not in this build and prints the usage).
+gui = ["dep:gtk", "dep:dc-ui"]
+default = ["gui"]
+
+[dev-dependencies]
+tempfile.workspace = true

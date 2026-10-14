@@ -1,0 +1,15 @@
+[package]
+name = "dc-fc-remote"
+description = "Remote X (1026) on Firecracker's unix-socket vsock listeners: the seam, and only the seam"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-vsock = { path = "../dc-vsock" }
+dc-common = { path = "../dc-common" }
+
+[dev-dependencies]
+tempfile.workspace = true

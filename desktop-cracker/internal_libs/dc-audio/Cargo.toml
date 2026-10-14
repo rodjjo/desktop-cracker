@@ -1,0 +1,18 @@
+[package]
+name = "dc-audio"
+description = "The guest's audio: a virtio-sound device and the rule that sound is only produced while numlock is held and the window is visible"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+dc-display = { path = "../dc-display" }
+anyhow.workspace = true
+thiserror.workspace = true
+libc.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

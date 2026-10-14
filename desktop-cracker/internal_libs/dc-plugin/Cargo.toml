@@ -1,0 +1,11 @@
+[package]
+name = "dc-plugin"
+description = "The host side of the plugin seam: dlopen, the ABI, and the five hooks the application offers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+libc.workspace = true

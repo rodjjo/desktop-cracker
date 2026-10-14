@@ -1,0 +1,17 @@
+[package]
+name = "dc-fc-net"
+description = "The network as a vsock service: dc-net's own engine on a channel, with the guest's TUN at the other end (no tap, no capability)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-net = { path = "../dc-net" }
+dc-common = { path = "../dc-common" }
+dc-vsock = { path = "../dc-vsock" }
+libc.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

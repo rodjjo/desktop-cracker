@@ -1,0 +1,51 @@
+[package]
+name = "desktop-cracker"
+description = "The microVM desktop: the window, the keys, the rule, and a Firecracker microVM underneath"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "desktop-cracker"
+path = "src/main.rs"
+
+[dependencies]
+# **This path's own half**: the run, its channels, the guest's services and the window bridge.
+fc-run = { path = "../../internal_libs/fc-run" }
+dc-fc-display = { path = "../../internal_libs/dc-fc-display" }
+dc-fc-audio = { path = "../../internal_libs/dc-fc-audio" }
+dc-fc-power = { path = "../../internal_libs/dc-fc-power" }
+dc-fc-control = { path = "../../internal_libs/dc-fc-control" }
+dc-fc-share = { path = "../../internal_libs/dc-fc-share" }
+dc-fc-remote = { path = "../../internal_libs/dc-fc-remote" }
+dc-fc-vm = { path = "../../internal_libs/dc-fc-vm" }
+dc-vsock = { path = "../../internal_libs/dc-vsock" }
+dc-fc-disk = { path = "../../internal_libs/dc-fc-disk" }
+dc-fc-window = { path = "../../internal_libs/dc-fc-window" }
+# **The project's own half, unchanged**: the switches, the settings, the questions, the window,
+# the rule, the audio, the shares' plan, the plugins.
+dc-common = { path = "../../internal_libs/dc-common" }
+dc-cli = { path = "../../internal_libs/dc-cli" }
+dc-settings = { path = "../../internal_libs/dc-settings" }
+dc-settings-window = { path = "../../internal_libs/dc-settings-window" }
+dc-session = { path = "../../internal_libs/dc-session" }
+dc-display = { path = "../../internal_libs/dc-display" }
+dc-audio = { path = "../../internal_libs/dc-audio" }
+dc-dialog = { path = "../../internal_libs/dc-dialog" }
+dc-plugin = { path = "../../internal_libs/dc-plugin" }
+dc-shares = { path = "../../internal_libs/dc-shares" }
+dc-net = { path = "../../internal_libs/dc-net" }
+dc-disk = { path = "../../internal_libs/dc-disk" }
+dc-xremote = { path = "../../internal_libs/dc-xremote" }
+anyhow.workspace = true
+serde_yaml.workspace = true
+libc.workspace = true
+zeroize = "1"
+
+[features]
+# The GTK window and the dialogs: the switch the application builds its settings window with
+# the same way and a machine with no GTK still has a *run* (it just has no window).
+gui = ["dc-settings-window/gui"]
+default = ["gui"]

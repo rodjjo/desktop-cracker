@@ -1,0 +1,17 @@
+[package]
+name = "dc-net"
+description = "The guest's network, in this process: a socket conduit, our own DHCP, and a userspace relay to host sockets. No tap, no root."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+libc.workspace = true
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+
+[dev-dependencies]
+tempfile.workspace = true

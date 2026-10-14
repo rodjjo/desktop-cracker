@@ -1,0 +1,18 @@
+[package]
+name = "dc-disk"
+description = "Encrypted raw disks: create, unlock with secrets, and the read-only rule of default mode"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-common = { path = "../dc-common" }
+anyhow.workspace = true
+serde_json = "1"
+thiserror.workspace = true
+base64 = "0.22"
+
+[dev-dependencies]
+tempfile.workspace = true

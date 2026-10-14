@@ -1,0 +1,13 @@
+[package]
+name = "dc-fc-window"
+description = "The guest's screen on the Firecracker path, as dc-display's own Display: rectangles in, the window's keys and pointer out"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+dc-display = { path = "../dc-display" }
+dc-plugin = { path = "../dc-plugin" }
+dc-fc-display = { path = "../dc-fc-display" }
