@@ -237,5 +237,9 @@ open(dst, "w").write(text)
 PATCH
 
 say "building the guest tools (the project's source, its mount pass changed)"
+# **The output's own directory is this script's to make.**  It is a build artefact (never
+# committed, see `.gitignore`), so a fresh clone has none, and `gcc -o` into a directory that is
+# not there is a linker error rather than a build.
+mkdir -p "$(dirname "$out")"
 gcc -static -O2 -o "$out" "$patched" -lm
 ls -lh "$out" | awk '{print "guest-tools: " $5 " " $9}'

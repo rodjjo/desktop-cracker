@@ -66,6 +66,7 @@ say "the kernel this initramfs carries: $release"
 project_out="$root/temp/download/initramfs-base.gz"
 MODULE_DIR="$modules/$release" KERNEL_RELEASE="$release" \
     "$root/tools/guest-image/build.sh" "$project_out" >/dev/null
+mkdir -p "$(dirname "$out")"
 say "the project's initramfs: $(du -h "$project_out" | cut -f1)"
 
 # 2. **This project's own modules**, on top of that list: the virtual display and

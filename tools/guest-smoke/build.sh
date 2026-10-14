@@ -15,6 +15,7 @@ out=${1:-$here/guest-smoke-initramfs.gz}
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
+mkdir -p "$(dirname "$out")"
 root="$tmp/root"
 mkdir -p "$root"/{bin,sbin,proc,sys,dev,tmp}
 
