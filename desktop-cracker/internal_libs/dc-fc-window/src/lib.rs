@@ -1,7 +1,7 @@
 //! **The Firecracker display, as the window's own `Display`**.
 //!
-//! The window half of the application — `dc-display`'s GTK window, its GL renderer, its numlock
-//! rule, its keys, its shapes and its dialogs — is **the project's own code and does not change**.
+//! The window half of the application — `dc-display`'s GTK window, its GL renderer, its audio
+//! gate, its keys, its shapes and its dialogs — is **the project's own code and does not change**.
 //! What it reads is a `Display`: a geometry, a `FramePath` (the picture plus the damage the
 //! renderer drains) and the guest's pointer.  Before this machine the D-Bus listener fills that
 //! struct; here it is filled from the display channel (`dc-fc-display`, port 53000).
@@ -18,7 +18,7 @@
 //!   pointer is in the guest's own pixels, with the buttons the window is holding, and the wheel is
 //!   a step on the guest's relative axes.
 //!
-//! What this crate does **not** do is the window's own rules — visibility, the numlock gate, the
+//! What this crate does **not** do is the window's own rules — visibility, the audio gate, the
 //! shapes, the keys.  They live in `dc-display` and are shared by both backends.
 //!
 //! Everything here is generic over [`Channel`], which is the display service and nothing else:

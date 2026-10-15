@@ -53,8 +53,8 @@ pub struct RunStatus {
     /// Is the display window on screen?  (`/status` says so; the rule that hides it —
     /// `numlock + F9`, a plugin's own action — is what a test watches.)
     pub visible: u32,
-    /// Does the run see numlock held? (The key the two chords and the sound rule are about, as
-    /// the window reads it.)
+    /// Does the run see numlock held? (The key the two chords are made of, as the window reads
+    /// it.  It is not the sound rule: the sound follows `visible` alone.)
     pub numlock: u32,
     /// **How far behind the picture is**: the rectangles waiting to be uploaded.
     ///

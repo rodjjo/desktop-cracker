@@ -59,9 +59,6 @@ pub struct UiLoop {
     pub keycodes: Option<crate::keymap::KeyCodes>,
     /// What the keyboard said last time, so that a change is a change and a rising edge is one.
     pub last_keys: Option<Keys>,
-    /// Hold the numlock key **on** whatever the physical keyboard says: see the argument of
-    /// [`run_window`].
-    pub pin_numlock: bool,
     /// **The keyboard grab** this window holds for the guest (see `dc_ui::grab`): the keyboard is
     /// the guest's while the window is on screen, so `Alt+F4`, `Super` and `Ctrl+Escape` reach the
     /// microVM instead of the window manager.  It is applied on this loop's own tick.
@@ -93,15 +90,14 @@ impl UiLoop {
         let Some(keys) = reader.keys() else {
             return;
         };
-        // The **rule's** answer, which an unattended run can pin (see `pin_numlock`).  The
-        // hotkeys are the keys themselves, so they are never pinned.
-        let numlock = if self.pin_numlock { true } else { keys.numlock };
+        // The key as the keyboard says it, with nothing pinned: the numlock key is the chord's
+        // half and a fact the guest's own library reads, never a rule the run can hold open.
+        let numlock = keys.numlock;
         let previous = self.last_keys.replace(keys);
         // **The key, every tick, not only when the answer changed.**  A window that has just come
         // back from `numlock + F9` did not see the presses that happened while it was hidden (a
         // hidden window has no keyboard of its own, and the reader only *notices* a change), so
-        // telling it every tick is what keeps its own state — and the sound rule the key drives —
-        // in step with the keyboard.
+        // telling it every tick is what keeps its own state in step with the keyboard.
         self.window.numlock_key_seen(numlock);
         // The **rising edge** of a chord: one press, one action.
         let before = previous.and_then(|p| p.hotkey());
@@ -310,9 +306,8 @@ pub fn init() -> Result<(), String> {
 
 /// Run the window until it is closed, **inside the GTK main loop**.
 ///
-/// The numlock key is what this reads (`config.numlock_held_initially` says what it was when the
-/// window was made, and the loop follows the keyboard from then on): a run whose screen must be
-/// the guest's from the first frame is a run started with `--numlock-held`.
+/// The numlock key is what this reads, from the physical keyboard and nothing else: the key is
+/// the half of the two chords, and the sound rule is the window's visibility on its own.
 ///
 /// It takes over the calling thread (the GTK main loop does), so the application runs it on a
 /// thread of its own (see `desktop-cracker`'s display thread): the microVM, the console and the
@@ -339,7 +334,6 @@ where
 {
     init()?;
 
-    let pin_numlock = config.numlock_held_initially;
     let run_seconds = config.run_seconds;
     // A run that asked for a hidden window (`--window-hidden`) keeps it unmapped: the question the
     // window was shown for is then asked over nothing, which is what that switch means.
@@ -371,7 +365,6 @@ where
         reader,
         keycodes,
         last_keys: None,
-        pin_numlock,
         grab,
         wheel: crate::wheel::Wheel::default(),
         stopping: false,

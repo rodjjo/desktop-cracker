@@ -539,7 +539,6 @@ pub fn run(cli: Cli) -> Result<()> {
             fullscreen: false,
             run_seconds: cli.run_seconds,
             hidden_initially: !cli.show_window && (plugin_wants_window || !window_visible),
-            numlock_held_initially: cli.numlock_held,
             control: Some(window.clone()),
             state: Some(window_state.clone()),
             manager: None,
@@ -1051,9 +1050,7 @@ fn publish_display_state(run: &Started, state: &Arc<WindowState>, published: &mu
     *published = revision;
     let (width, height) = state.size();
     let status = match state.gate() {
-        dc_display::window::Gate::Open | dc_display::window::Gate::NumlockNotHeld => {
-            DISPLAY_VISIBLE
-        }
+        dc_display::window::Gate::Open => DISPLAY_VISIBLE,
         dc_display::window::Gate::WindowHidden => DISPLAY_HIDDEN,
     };
     let text = format!(

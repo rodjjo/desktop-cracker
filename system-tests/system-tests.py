@@ -653,9 +653,6 @@ def step_boot(run: Run, password: str) -> None:
         [
             "--ready-file",
             str(run.run_dir / "control/guest-ready"),
-            # The window's own rule is about the numlock **key**: an unattended run says the key
-            # is held with the documented switch instead of holding one down.
-            "--numlock-held",
             # **One vCPU, for the duration of the test** (the operator, 2026-10-08: "during the
             # tests, and only during the tests make the microvm's CPU be only one CPU").  A
             # guest given every core of this host spends its time in per-CPU bring-up and its
@@ -767,20 +764,17 @@ def step_desktop_is_drawn(run: Run, _password: str) -> None:
 def step_window_rule(run: Run, _password: str) -> None:
     """The display rule: the window is the guest's size, whatever the numlock key does.
 
-    The run holds the numlock **key** (`--numlock-held`, the documented switch for an unattended
-    run) and the window is still the guest's size — the geometry the guest's own scanout arrives
-    at.  The key is what the two chords and the sound rule are about; it never resizes the window
-    and never paints it black.  It is asserted on `/status`, which is the application's own
-    state.
+    The window is the guest's size — the geometry the guest's own scanout arrives at.  The numlock
+    key is what the two chords are made of; it never resizes the window, never paints it black, and
+    it is not the sound rule either (the sound follows the window's visibility alone).  It is
+    asserted on `/status`, which is the application's own state.
     """
     status = run.status()
-    if not status.get("numlock"):
-        raise Failure(f"the run does not see numlock held: {json.dumps(status)}")
     if (status.get("width"), status.get("height")) != DISPLAY_SIZE:
         raise Failure(
-            f"the guest's screen is {status.get('width')}x{status.get('height')} with numlock "
-            f"held, not the {DISPLAY_SIZE[0]}x{DISPLAY_SIZE[1]} the settings ask for (the key is "
- f"not what sizes the window)"
+            f"the guest's screen is {status.get('width')}x{status.get('height')}, not the "
+            f"{DISPLAY_SIZE[0]}x{DISPLAY_SIZE[1]} the settings ask for (the numlock key is "
+            f"not what sizes the window)"
         )
 
 

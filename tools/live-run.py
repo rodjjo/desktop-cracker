@@ -189,7 +189,6 @@ def main():
         args.config,
         "--plugin-path",
         str(PLUGIN),
-        "--numlock-held",
     ] + (["--ssh-port", str(args.ssh_port)] if args.ssh_port else [])
     process = subprocess.Popen(
         argv,

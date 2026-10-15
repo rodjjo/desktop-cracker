@@ -10,14 +10,14 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
 name = "dc-fc-display"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dc-vsock",
 ]
 
 [[package]]
 name = "dc-vsock"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "libc",
@@ -26,7 +26,7 @@ dependencies = [
 
 [[package]]
 name = "guest-agent-rs"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dc-fc-display",
  "libc",

@@ -138,7 +138,7 @@ pub struct RunSpec {
     /// `None` is a run with no X forwarder — and therefore no listener on 1026.
     pub x_socket: Option<std::path::PathBuf>,
     /// **The sound**, when this run has a sound card: the PCM the guest plays is put through
-    /// the project's own rule (the window must be visible and the numlock key held —
+    /// the project's own rule (the window must be visible —
     /// `dc-audio::AudioPath`, unchanged) by the caller, which is what owns the window and the
     /// host's own sound device.
     pub audio: Option<Arc<dyn dc_fc_audio::Play>>,

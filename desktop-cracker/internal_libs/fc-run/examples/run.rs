@@ -242,7 +242,6 @@ fn main() {
             // no sound device to play through — the counters are what says the rule worked.
             let window = WindowState::new();
             window.set_visible(true);
-            window.set_numlock_held(true);
             Some(Arc::new(dc_audio::AudioPath::new(
                 window,
                 dc_audio::CountingSink::new(),

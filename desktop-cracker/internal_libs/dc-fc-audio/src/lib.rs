@@ -9,7 +9,8 @@
 //!
 //! This is the host's half.  It is deliberately thin, because **the rule already exists**:
 //! `dc-audio::AudioPath` is what decides whether a buffer is played or discarded (the window
-//! must be visible and the numlock key must be held — `AGENTS.md`'s rule, unchanged), and it is
+//! must be visible — the rule the operator restated on 2026-10-14: the numlock key is the
+//! chords' key, not a condition for hearing the guest), and it is
 //! what talks to the host's own sound device.  So this service does two things:
 //!
 //! * it reads the agent's frames — a stream's format once, then its PCM — and hands each buffer
@@ -76,7 +77,7 @@ pub struct Snapshot {
 }
 
 /// What the PCM is put through: **the project's own rule**, which is `dc-audio::AudioPath`'s
-/// (`window visible` and `numlock held`), plus its own playing thread.  A service takes this as
+/// (`the window is visible`), plus its own playing thread.  A service takes this as
 /// a trait so its unit tests can watch the rule without a sound device and without a window.
 pub trait Play: Send + Sync {
     /// A buffer of the guest's sound, and what the rule did with it.

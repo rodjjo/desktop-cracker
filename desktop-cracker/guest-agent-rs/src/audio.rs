@@ -11,8 +11,8 @@
 //!   application's sound goes **into** the cable;
 //! * this opens the *capture* side of that same cable (`hw:Loopback,1,0`, the second PCM device:
 //!   the end device 0's playback writes into) and reads the PCM out of it;
-//! * and it ships those bytes to the host, where `dc-audio`'s own rule (window visible and numlock
-//!   held) decides whether the user hears them.
+//! * and it ships those bytes to the host, where `dc-audio`'s own rule (the window is visible)
+//!   decides whether the user hears them.
 //!
 //! ## The card, without an ALSA library
 //!

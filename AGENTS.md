@@ -61,7 +61,7 @@ Read on:
 
 * **The application's switches are a closed list.** The `dc-cli` crate holds them,
   holds them, and the switches that exist for driving a run
-  from a script (`--display`, `--numlock-held`, `--window-command`, `--run-seconds`,
+  from a script (`--display`, `--window-command`, `--run-seconds`,
   `--ready-file`, …) are ordinary run knobs, documented in `dc-cli` and reachable by a user.
   Adding a switch for a test's convenience — or an environment variable, or a hidden file, or a
   "debug" build — is forbidden: it needs a change to the project's rules first, and it has to be something

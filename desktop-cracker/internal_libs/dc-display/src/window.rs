@@ -12,9 +12,9 @@
 //! * **the display rule**: the window is the guest's screen at
 //! its own size — 1280x800 centered, or FULL_SCREEN_RESOLUTION borderless — whatever
 //! the numlock key is doing. The key is still read, globally and every frame, because
-//! it is what the two chords are made of (`numlock + F9`, `numlock + F10`) and what the
-//! sound rule opens and closes; it is **not** what the window's size or its picture depends
-//! on.
+//! it is what the two chords are made of (`numlock + F9`, `numlock + F10`); it is **not**
+//! what the window's size or its picture depends on, and it is not what the sound rule
+//! is about either — the sound follows the window.
 //!   This is not the numlock *state*, it is whether the key is pressed at this
 //!   moment — so it is a key press/release fact, and the window acts on it at
 //!   once;
@@ -52,13 +52,10 @@ pub trait HotkeySink: Send + Sync {
 /// Why the guest's audio is (or is not) being heard.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Gate {
-    /// The window is visible *and* numlock is held: play it.
+    /// The window is visible: play it.
     Open,
     /// The window is not visible (it is hidden with the keys).
     WindowHidden,
-    /// The window is visible but numlock is not held: the key is not there, and the
-    /// rule is about the key.
-    NumlockNotHeld,
 }
 
 impl Gate {
@@ -70,16 +67,18 @@ impl Gate {
         match self {
             Gate::Open => "playing",
             Gate::WindowHidden => "the window is hidden",
-            Gate::NumlockNotHeld => "numlock is not held",
         }
     }
 }
 
 /// What the window tells the audio path about itself.  `dc-display`'s window
-/// owns these two facts, and they are exactly the two the rule needs.
+/// owns these facts, and the sound rule is answered by the window's own visibility.
 #[derive(Debug, Default)]
 pub struct WindowState {
     visible: AtomicBool,
+    /// The numlock key as the window last read it.  It is **not** the sound rule any more — the
+    /// sound follows the window — but it is still what the two chords are made of, and the guest's
+    /// own library and `/status` report it.
     numlock_held: AtomicBool,
     /// The window's size, which is the guest's screen as the rule has it: the guest's own
     /// size, or FULL_SCREEN_RESOLUTION while the window is full screen. `0x0` is a window
@@ -160,14 +159,12 @@ impl WindowState {
         )
     }
 
-    /// The rule, in one place.
+    /// The rule, in one place: **the window's own visibility**, nothing else.
     pub fn gate(&self) -> Gate {
-        if !self.visible() {
-            Gate::WindowHidden
-        } else if !self.numlock_held() {
-            Gate::NumlockNotHeld
-        } else {
+        if self.visible() {
             Gate::Open
+        } else {
+            Gate::WindowHidden
         }
     }
 }
@@ -191,8 +188,8 @@ pub enum Shape {
 impl Shape {
     /// Does entering this shape mean "the numlock key is held"?
     ///
-    /// **No shape does.** The key drives the two chords and the sound rule; it never decides
-    /// the window's size or its picture, and a shape that claimed it would be a rule that
+    /// **No shape does.** The key drives the two chords; it never decides the window's size or
+    /// its picture, and a shape that claimed it would be a rule that
     /// stopped following the keyboard: measured, the window then stayed small and black while
     /// the key was held (the operator: "pressing numlock the display window does not go normal,
     /// I was not able of using the system").
@@ -209,15 +206,8 @@ impl Shape {
 /// the guest's window at the guest's own size. The window is never resized down and
 /// never painted black: the numlock key is read globally, but it is not what this
 /// rule is about.
-pub fn shape_for(
-    hidden: bool,
-    focused: bool,
-    numlock_held: bool,
-    width: u32,
-    height: u32,
-) -> Shape {
+pub fn shape_for(hidden: bool, focused: bool, width: u32, height: u32) -> Shape {
     let _ = focused;
-    let _ = numlock_held;
     if hidden {
         Shape::Hidden
     } else if is_full_screen_resolution(width, height) {
@@ -268,13 +258,7 @@ pub fn initial_shape(config: &WindowConfig) -> (Shape, u32, u32) {
     let initial = if config.hidden_initially {
         Shape::Hidden
     } else {
-        shape_for(
-            false,
-            true,
-            config.numlock_held_initially,
-            config.width,
-            config.height,
-        )
+        shape_for(false, true, config.width, config.height)
     };
     (initial, config.width, config.height)
 }
@@ -524,17 +508,12 @@ pub struct WindowConfig {
     /// Start with the window hidden (the keys' `Hide`, and what an unattended run uses to test
     /// that state).
     pub hidden_initially: bool,
-    /// Start with numlock treated as held.  On a desktop the physical key
-    /// decides (a press or release event overrides this at once); for an
-    /// unattended run — a test, a benchmark, a machine with no keyboard — this
-    /// is how the "numlock is held" state is produced.
-    pub numlock_held_initially: bool,
     /// The application's window control, when there is one: the window polls it (see `Control`).
     pub control: Option<Arc<dyn Control>>,
-    /// The state the audio rule reads: the window publishes its visibility and
-    /// the numlock key here, and `dc-audio` decides from it.  Sharing the same
-    /// value is what keeps the two in step — there is one answer to "is the window visible?",
-    /// not two that could disagree.
+    /// The state the audio rule reads: the window publishes its visibility (and the numlock key,
+    /// which the chords and the guest's own library read) here, and `dc-audio` decides from it.
+    /// Sharing the same value is what keeps the two in step — there is one answer to
+    /// "is the window visible?", not two that could disagree.
     pub state: Option<Arc<WindowState>>,
     /// The application's controller, when there is one: the window reads the **guest's**
     /// phase and its last console line from it (so its status line says what the guest is
@@ -553,7 +532,6 @@ impl Default for WindowConfig {
             run_seconds: None,
             control: None,
             hidden_initially: false,
-            numlock_held_initially: false,
             state: None,
             manager: None,
         }
@@ -723,7 +701,7 @@ impl Window {
             tex_size: (0, 0),
             cursor_tex_size: (0, 0),
             fullscreen: false,
-            numlock_held: config.numlock_held_initially,
+            numlock_held: false,
             config,
             real_size: (0, 0),
             // There is no window manager here and no other window: "the window is
@@ -806,7 +784,7 @@ impl Window {
             shape_announced: false,
             hidden: config.hidden_initially,
             control_hidden: None,
-            numlock_held: config.numlock_held_initially,
+            numlock_held: false,
             keys_down: Vec::new(),
             buttons_down: 0,
             pointer_guest: (0, 0),
@@ -1242,7 +1220,6 @@ impl Window {
         shape_for(
             false,
             self.is_focused(),
-            self.numlock_held,
             self.config.width,
             self.config.height,
         )
@@ -1288,12 +1265,13 @@ impl Window {
         let _ = was;
     }
 
-    /// The numlock key changed: record it and let the rule decide the shape.
+    /// The numlock key changed: record it, for the chords and for what the guest's own library reads.
     ///
-    /// The key is what the two chords (`numlock + F9`, `numlock + F10`) and the sound rule are
-    /// about.  The shape is decided in [`shape_for`] from the resolution — the key is not what
-    /// resizes the window or paints it black — and it is re-derived here so a run that changes
-    /// resolution mid-flight lands in the right shape.
+    /// The key is what the two chords (`numlock + F9`, `numlock + F10`) are made of.  It is **not**
+    /// the sound rule any more — the sound follows the window's visibility — and the shape is
+    /// decided in [`shape_for`] from the resolution: the key is not what resizes the window or
+    /// paints it black.  The shape is re-derived here so a run that changes resolution mid-flight
+    /// lands in the right one.
     pub fn set_numlock_held(&mut self, held: bool) {
         if self.numlock_held == held {
             return;
@@ -1312,8 +1290,9 @@ impl Window {
 
     /// Tell the audio rule what this window is doing.
     ///
-    /// Two independent facts, and the project's rules need both: is the window on
-    /// screen at all (the keys' Show/Hide), and is the numlock key held?
+    /// The sound rule is one fact: is the window on screen at all (the keys' Show/Hide)?  The
+    /// numlock key and the size go into the same state because the chords, `/status` and the
+    /// guest's own library read them there.
     fn publish_state(&self) {
         let Some(state) = &self.config.state else {
             return;
@@ -1629,31 +1608,25 @@ mod tests {
     #[test]
     fn the_shape_rule_is_the_projects_own_list() {
         // Hidden: "the window is not visible" — nothing else changes that.
-        for held in [false, true] {
-            assert_eq!(
-                shape_for(true, false, held, 1280, 800),
-                Shape::Hidden,
-                "a hidden window stays hidden"
-            );
-            assert_eq!(shape_for(true, true, held, 1920, 1080), Shape::Hidden);
-        }
-        // **The resolution decides, and the numlock key does not touch it**: a window
-        // whose key is held and one whose key is not are the same window — the key is
-        // what the two chords and the sound rule are about, never what resizes the
-        // window or paints it black.
+        assert_eq!(
+            shape_for(true, false, 1280, 800),
+            Shape::Hidden,
+            "a hidden window stays hidden"
+        );
+        assert_eq!(shape_for(true, true, 1920, 1080), Shape::Hidden);
+        // **The resolution decides, and nothing else does**: the key is what the two chords are
+        // about, never what resizes the window or paints it black.
         for focused in [false, true] {
-            for held in [false, true] {
-                assert_eq!(
-                    shape_for(false, focused, held, 1280, 800),
-                    Shape::Normal,
-                    "the guest's own resolution: the window at the guest's size"
-                );
-                assert_eq!(
-                    shape_for(false, focused, held, 1920, 1080),
-                    Shape::FullScreen,
-                    "FULL_SCREEN_RESOLUTION: borderless full screen"
-                );
-            }
+            assert_eq!(
+                shape_for(false, focused, 1280, 800),
+                Shape::Normal,
+                "the guest's own resolution: the window at the guest's size"
+            );
+            assert_eq!(
+                shape_for(false, focused, 1920, 1080),
+                Shape::FullScreen,
+                "FULL_SCREEN_RESOLUTION: borderless full screen"
+            );
         }
         assert!(is_hd(1920, 1080));
         assert!(
@@ -1675,17 +1648,12 @@ mod tests {
     }
 
     /// The display rule, at the level it can be tested without a screen: the window is
-    /// the guest's size whatever the numlock key is doing, and the key only decides the
-    /// chords and the sound rule.
+    /// the guest's size whatever the numlock key is doing, and the key only decides the chords.
     #[test]
     fn the_window_keeps_its_size_whatever_the_numlock_key_does() {
         // A machine whose key is not held opens the guest's window, at the guest's size:
         // there is no shape left that the key alone can put the window in.
-        let mut w = Window::headless(WindowConfig {
-            numlock_held_initially: false,
-            ..WindowConfig::default()
-        })
-        .unwrap();
+        let mut w = Window::headless(WindowConfig::default()).unwrap();
         w.set_numlock_held(true);
         assert_eq!(
             w.shape_for_now(),
@@ -1698,7 +1666,7 @@ mod tests {
             Shape::Normal,
             "and releasing it does not either"
         );
-        // The key is still recorded — it is what the sound rule and the chords read.
+        // The key is still recorded — it is what the chords read.
         assert!(!w.numlock_held());
         w.set_numlock_held(true);
         assert!(w.numlock_held());
@@ -1714,7 +1682,6 @@ mod tests {
     fn a_window_the_application_shows_is_on_the_screen_after_the_frame_that_shows_it() {
         let control = Arc::new(WindowControl::new());
         let mut w = Window::headless(WindowConfig {
-            numlock_held_initially: false,
             control: Some(control.clone()),
             ..WindowConfig::default()
         })

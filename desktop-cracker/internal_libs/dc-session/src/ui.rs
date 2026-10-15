@@ -358,17 +358,15 @@ mod tests {
             "the close is what the tick carries out"
         );
         // And the window's own rule keeps it that way: `dc_display`'s shape rule answers Hidden for
-        // a hidden window **whatever the numlock key is doing** ("hidden stays hidden": when the
-        // window is hidden, the numlock events do not change its visibility), so releasing the key
-        // while the question is up cannot bring the window back in front of the dialog.
+        // a hidden window ("hidden stays hidden": when the window is hidden, nothing brings it
+        // back), so releasing the key while the question is up cannot bring the window back in
+        // front of the dialog.
         use dc_display::window::Shape;
-        for numlock_held in [true, false] {
-            assert_eq!(
-                dc_display::window::shape_for(true, true, numlock_held, 2560, 1080),
-                Shape::Hidden,
-                "a hidden window stays hidden with numlock {numlock_held}"
-            );
-        }
+        assert_eq!(
+            dc_display::window::shape_for(true, true, 2560, 1080),
+            Shape::Hidden,
+            "a hidden window stays hidden"
+        );
         assert!(ui.window.is_hidden());
     }
 

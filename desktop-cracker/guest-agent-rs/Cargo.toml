@@ -1,7 +1,7 @@
 [package]
 name = "guest-agent-rs"
 description = "The guest's own agent, in Rust: the screen (with the damage logic), the shares, the sound, the network, the shutdown channel and the run's own files"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.75"
 license = "MIT"

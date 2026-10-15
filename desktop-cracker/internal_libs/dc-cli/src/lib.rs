@@ -117,10 +117,6 @@ pub struct Cli {
     /// host's own output through this process; `none` is a guest with a working sound card
     /// and nowhere for the samples to go).
     pub audio: AudioBackend,
-    /// `--numlock-held`: read the display rule as if **numlock were held**, which is how an
-    /// unattended session (a script, a test) has the key held — the sound rule open — without a
-    /// keyboard to press it on.
-    pub numlock_held: bool,
     /// `--window-hidden`: start with the display window hidden.
     pub window_hidden: bool,
     /// `--ready-marker TEXT`: the guest line that means "the guest is up".
@@ -160,7 +156,6 @@ impl Default for Cli {
             append: None,
             window_command: None,
             audio: AudioBackend::Dbus,
-            numlock_held: false,
             window_hidden: false,
             ready_marker: None,
             ready_file: None,
@@ -219,7 +214,6 @@ OPTIONS:
     --append LINE           extra kernel command line
     --window-command ITEM   run a window key: f9 (hide or show), f10 (hide and settings)
     --audio BACKEND         where the guest's sound goes: dbus (default), pulse, alsa, none
-    --numlock-held          read the display rule as if numlock were held (unattended runs)
     --window-hidden        start with the display window hidden
     --ready-marker TEXT     the guest serial line that means the guest is up
     --print-argv            print the command line a run would use and exit
@@ -283,7 +277,6 @@ where
                     }
                 };
             }
-            "--numlock-held" => cli.numlock_held = true,
             "--window-hidden" => cli.window_hidden = true,
             "--show-settings" => cli.show_settings = true,
             "--set-password" => cli.set_password = true,
@@ -459,8 +452,10 @@ mod tests {
 
     #[test]
     fn the_removed_switches_are_unknown_parameters() {
-        // A user carrying `--admin` in a script gets the sentence, not a silent difference.
-        for gone in ["--admin", "--no-network"] {
+        // A user carrying one of these in a script gets the sentence, not a silent difference.
+        // `--numlock-held` went with the sound rule that needed the key (2026-10-14): the sound
+        // follows the window's visibility, so an unattended run has nothing left to pin.
+        for gone in ["--admin", "--no-network", "--numlock-held"] {
             let error = parse([gone]).unwrap_err();
             assert!(
                 error.to_string().contains("unknown parameter"),
@@ -574,7 +569,6 @@ mod tests {
         let cli = parse(["--audio", "none"]).unwrap();
         assert_eq!(cli.audio, AudioBackend::None);
         assert!(!parse(["--audio", "nope"]).unwrap_err().0.is_empty());
-        assert!(parse(["--numlock-held"]).unwrap().numlock_held);
         assert!(parse(["--window-hidden"]).unwrap().window_hidden);
     }
 

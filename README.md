@@ -73,8 +73,8 @@ takes longer than that is a bug to investigate, not a fact to live with.
   (`parenthost`) and through the X server shared into it, so an application in the sandbox can open
   its window on this desktop and talk to a service running here; `--host-network` decides how much
   of the network the guest can reach.
-* **sound** through the host's own audio, played only while the window is visible and the numlock
-  key is held.
+* **sound** through the host's own audio, played whenever the display window is visible (hidden
+  with `numlock + F9`, the samples are discarded).
 * **`desk-disk`**, the disk tool: make, resize, re-key and inspect a disk, each job in a microVM of
   its own — no root, no loop device, no package on the host.
 * **`--plugin-path`**: a plugin sees the run's milestones, its state, its screen and the questions it

@@ -2,10 +2,9 @@
 //!
 //! Audio support: //!
 //! > The desktop-cracker application implements a audio device exposed inside
-//! > the microvm, it only produces sound on the guest when numlock is pressed
-//! > and the window is visible (the window can hide and only a system tray
-//! > window has the application icon), if the window is not visible or numlock
-//! > is not pressed it **discards the audio data it receives from the microvm**.
+//! > the microvm, and it produces sound on the host whenever the display window is visible
+//! > (the window can hide and only a system tray window has the application icon); when the
+//! > window is not visible it **discards the audio data it receives from the microvm**.
 //!
 //! The device inside the microvm is the kernel's own **loopback sound card** (`snd-aloop`, which
 //! this project's guest kernel builds), and the guest's programs play into its capture side.  The
@@ -21,7 +20,7 @@
 //!   later and nothing buffers them up — that is what "discards" means, and it
 //!   is what `AudioGate::accept` returns;
 //! * **the device is still there**: the guest always has a sound card, it just
-//!   is not heard while the window is hidden or numlock is up.  A guest that
+//!   is not heard while the window is hidden.  A guest that
 //!   finds no device behaves quite differently (applications refuse to start),
 //!   which is not what this project asks for.
 
@@ -56,9 +55,8 @@ pub struct AudioStats {
     /// Bytes dropped because the rule was closed — the project's rule
     /// "discards the audio data it receives".
     pub bytes_dropped: AtomicU64,
-    /// Writes dropped for each reason.
+    /// Writes dropped for each reason.  There is one reason: the window is not on screen.
     pub dropped_hidden: AtomicU64,
-    pub dropped_numlock: AtomicU64,
 }
 
 impl AudioStats {
@@ -75,11 +73,6 @@ impl AudioStats {
                     .fetch_add(bytes as u64, Ordering::Relaxed);
                 self.dropped_hidden.fetch_add(1, Ordering::Relaxed);
             }
-            Gate::NumlockNotHeld => {
-                self.bytes_dropped
-                    .fetch_add(bytes as u64, Ordering::Relaxed);
-                self.dropped_numlock.fetch_add(1, Ordering::Relaxed);
-            }
         }
     }
 
@@ -94,13 +87,12 @@ impl AudioStats {
 
     pub fn summary(&self) -> String {
         format!(
-            "{} stream(s), {} write(s), {} KiB played, {} KiB discarded ({} hidden, {} numlock)",
+            "{} stream(s), {} write(s), {} KiB played, {} KiB discarded ({} window hidden)",
             self.streams.load(Ordering::Relaxed),
             self.writes.load(Ordering::Relaxed),
             self.bytes_played.load(Ordering::Relaxed) >> 10,
             self.bytes_dropped.load(Ordering::Relaxed) >> 10,
-            self.dropped_hidden.load(Ordering::Relaxed),
-            self.dropped_numlock.load(Ordering::Relaxed)
+            self.dropped_hidden.load(Ordering::Relaxed)
         )
     }
 }
@@ -324,17 +316,12 @@ impl AudioPath {
 
     pub fn rule_summary(&self) -> String {
         format!(
-            "audio rule: {} (window {}, numlock {})",
+            "audio rule: {} (window {})",
             self.gate().reason(),
             if self.window.visible() {
                 "visible"
             } else {
                 "hidden"
-            },
-            if self.window.numlock_held() {
-                "held"
-            } else {
-                "not held"
             }
         )
     }
@@ -351,19 +338,24 @@ mod tests {
         (window, sink, audio)
     }
 
+    /// The sound rule is the window's visibility, and nothing else: the numlock key is the
+    /// chords' key, not a condition for hearing the guest.
     #[test]
-    fn the_rule_needs_both_the_window_and_the_key() {
+    fn the_rule_is_the_windows_visibility_alone() {
         let (window, _, audio) = path();
         // nothing said yet: not audible
         assert_eq!(audio.gate(), Gate::WindowHidden);
 
         window.set_visible(true);
-        assert_eq!(audio.gate(), Gate::NumlockNotHeld);
+        assert_eq!(audio.gate(), Gate::Open, "no key needs holding");
 
+        // The key changes nothing, held or not.
         window.set_numlock_held(true);
         assert_eq!(audio.gate(), Gate::Open);
+        window.set_numlock_held(false);
+        assert_eq!(audio.gate(), Gate::Open);
 
-        // hiding the window closes it again, even with numlock held
+        // hiding the window closes it again
         window.set_visible(false);
         assert_eq!(audio.gate(), Gate::WindowHidden);
         window.set_visible(true);
@@ -380,14 +372,9 @@ mod tests {
         assert_eq!(audio.write(1, &pcm).unwrap(), Gate::WindowHidden);
         assert_eq!(sink.bytes(), 0);
 
-        // visible but numlock up: discarded
-        window.set_visible(true);
-        assert_eq!(audio.write(1, &pcm).unwrap(), Gate::NumlockNotHeld);
-        assert_eq!(sink.bytes(), 0);
-
-        // both: played — by the **player thread**, which is why this waits for it (a
+        // visible: played — by the **player thread**, which is why this waits for it (a
         // millisecond or two: what is asserted is that it happens, not when)
-        window.set_numlock_held(true);
+        window.set_visible(true);
         assert_eq!(audio.write(1, &pcm).unwrap(), Gate::Open);
         assert_eq!(
             wait_for_bytes(&sink, 4096),
@@ -397,11 +384,10 @@ mod tests {
 
         // and the counters say what happened, in bytes
         let s = audio.stats();
-        assert_eq!(s.bytes_offered.load(Ordering::Relaxed), 3 * 4096);
+        assert_eq!(s.bytes_offered.load(Ordering::Relaxed), 2 * 4096);
         assert_eq!(s.bytes_played.load(Ordering::Relaxed), 4096);
-        assert_eq!(s.bytes_dropped.load(Ordering::Relaxed), 2 * 4096);
+        assert_eq!(s.bytes_dropped.load(Ordering::Relaxed), 4096);
         assert_eq!(s.dropped_hidden.load(Ordering::Relaxed), 1);
-        assert_eq!(s.dropped_numlock.load(Ordering::Relaxed), 1);
         assert!(s.summary().contains("discarded"), "{}", s.summary());
     }
 
@@ -411,7 +397,6 @@ mod tests {
         let pcm = vec![7u8; 1024];
         audio.write(1, &pcm).unwrap(); // discarded
         window.set_visible(true);
-        window.set_numlock_held(true);
         assert_eq!(
             sink.bytes(),
             0,
@@ -479,7 +464,6 @@ mod tests {
         }
         let window = WindowState::new();
         window.set_visible(true);
-        window.set_numlock_held(true);
         let audio = AudioPath::new(window, Arc::new(Failing));
         assert_eq!(audio.write(1, &[0u8; 64]).unwrap(), Gate::Open);
         // it was counted as offered and as played: the rule was open, and the sink is what

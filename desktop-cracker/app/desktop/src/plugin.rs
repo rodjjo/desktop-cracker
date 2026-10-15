@@ -160,8 +160,9 @@ fn status_of(cells: &Arc<Mutex<PluginCells>>) -> dc_plugin::RunStatus {
         None => dc_plugin::RunStatus::default(),
     };
     // **The window's own state**, which is the same value the audio rule and the guest's own
-    // library read: it is written by the window (its size follows numlock, and its own close
-    // hides it), so it is the honest answer to "is the window on screen?".
+    // library read: it is written by the window (its size follows the resolution, and its own
+    // close hides it), so it is the honest answer to "is the window on screen?" — which is also
+    // the whole sound rule.
     if let Some(state) = &cells.state {
         status.visible = state.visible() as u32;
         status.numlock = state.numlock_held() as u32;
